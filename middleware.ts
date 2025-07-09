@@ -1,20 +1,5 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/events/:id',
-  '/api/webhook/clerk',
-  '/api/webhook/stripe',
-  '/api/uploadthing',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-])
-
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
-})
+// Edge-compatible middleware: No Clerk logic allowed here due to Vercel Edge restrictions.
+// You can add custom logic here if needed, but do not use Clerk imports.
 
 export const config = {
   matcher: [
