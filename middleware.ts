@@ -1,6 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-// Define your public routes here
 const isPublicRoute = createRouteMatcher([
   '/',
   '/events/:id',
@@ -8,7 +7,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/webhook/stripe',
   '/api/uploadthing',
   '/sign-in(.*)',
-  '/sign-up(.*)'
+  '/sign-up(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
