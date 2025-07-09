@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { verifyWebhook } from '@clerk/nextjs/webhooks';
 import { clerkClient } from '@clerk/nextjs/server';
 import { createUser, updateUser, deleteUser } from '@/lib/actions/user.actions';
