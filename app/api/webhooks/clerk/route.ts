@@ -4,12 +4,12 @@ import { clerkClient } from '@clerk/nextjs/server';
 import { createUser, updateUser, deleteUser } from '@/lib/actions/user.actions';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const evt = await verifyWebhook(req);
+    const evt = await verifyWebhook(request);
 
     const eventType = evt.type;
-    const data = evt.data as any; // You can narrow with Clerk types
+    const data = evt.data as any;
 
     if (eventType === 'user.created') {
       const { id, email_addresses, image_url, first_name, last_name, username } = data;
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     return new Response(null, { status: 200 });
   } catch (err) {
-    console.error('Error verifying webhook:', err);
-    return new Response('Error verifying webhook', { status: 400 });
+    console.error('Webhook verification failed:', err);
+    return new Response('Webhook verification failed', { status: 400 });
   }
 }
