@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import Footer from "@/components/shared/Footer"
+import Header from "@/components/shared/Header"
 
 import './globals.css'
 const poppins = Poppins({ subsets: ['latin'],
@@ -25,7 +27,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={poppins.variable}>
         <ClerkProvider afterSignOutUrl="/">
-          {children}
+          <div className="flex h-screen flex-col">
+            <Header/>
+            <main className="flex-1">{children}</main>
+            <Footer/>
+          </div>
         </ClerkProvider>
       </body>
     </html>
