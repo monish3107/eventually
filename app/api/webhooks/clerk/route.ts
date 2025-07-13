@@ -5,6 +5,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    // Debug: Check if webhook secret is loaded
+    console.log('Webhook secret loaded:', !!process.env.CLERK_WEBHOOK_SIGNING_SECRET);
+    
     const evt = await verifyWebhook(request);
 
     const eventType = evt.type;
