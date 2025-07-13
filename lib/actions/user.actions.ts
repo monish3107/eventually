@@ -38,11 +38,19 @@ export async function updateUser(clerkId: string, user: UpdateUserParams) {
   try {
     await connectToDatabase()
 
+    console.log('Updating user with clerkId:', clerkId, 'data:', user)
+
     const updatedUser = await User.findOneAndUpdate({ clerkId }, user, { new: true })
 
-    if (!updatedUser) throw new Error('User update failed')
+    if (!updatedUser) {
+      console.log('No user found with clerkId:', clerkId)
+      throw new Error(`User not found with clerkId: ${clerkId}`)
+    }
+    
+    console.log('User updated successfully:', updatedUser._id)
     return JSON.parse(JSON.stringify(updatedUser))
   } catch (error) {
+    console.error('Error in updateUser:', error)
     handleError(error)
   }
 }

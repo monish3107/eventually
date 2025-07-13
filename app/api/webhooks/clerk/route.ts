@@ -5,9 +5,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    // Debug: Check if webhook secret is loaded
-    console.log('Webhook secret loaded:', !!process.env.CLERK_WEBHOOK_SIGNING_SECRET);
-    
     const evt = await verifyWebhook(request);
 
     const eventType = evt.type;
@@ -37,13 +34,25 @@ export async function POST(request: NextRequest) {
 
     if (eventType === 'user.updated') {
       const { id, image_url, first_name, last_name, username } = data;
-      const updatedUser = await updateUser(id, {
-        firstName: first_name,
-        lastName: last_name,
-        username: username!,
-        photo: image_url,
-      });
-      return NextResponse.json({ message: 'OK', user: updatedUser });
+      
+      // Debug: Log the data being received
+      console.log('User update data:', { id, image_url, first_name, last_name, username });
+      
+      // Only update fields that are provided (not null/undefined)
+      const updateData: any = {};
+      if (first_name) updateData.firstName = first_name;
+      if (last_name) updateData.lastName = last_name;
+      if (username) updateData.username = username;
+      if (image_url) updateData.photo = image_url;
+      
+      // Only proceed if we have data to update
+      if (Object.keys(updateData).length > 0) {
+        const updatedUser = await updateUser(id, updateData);
+        return NextResponse.json({ message: 'OK', user: updatedUser });
+      } else {
+        console.log('No valid data to update for user:', id);
+        return NextResponse.json({ message: 'No data to update' });
+      }
     }
 
     if (eventType === 'user.deleted') {
