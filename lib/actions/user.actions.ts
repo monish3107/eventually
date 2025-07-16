@@ -7,8 +7,36 @@ import User from '@/lib/database/models/user.model'
 import Order from '@/lib/database/models/order.model'
 import Event from '@/lib/database/models/event.model'
 import { handleError } from '@/lib/utils'
+import { clerkClient } from '@clerk/nextjs/server'
 
 import { CreateUserParams, UpdateUserParams } from '@/types'
+
+// Helper to ensure MongoDB user exists for a given Clerk userId
+async function ensureMongoUser(clerkId) {
+  let user = await User.findOne({ clerkId });
+  if (!user) {
+    // Fetch from Clerk
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+    if (!clerkUser) throw new Error('Clerk user not found');
+    try {
+      user = await User.create({
+        clerkId: clerkUser.id,
+        email: clerkUser.emailAddresses[0]?.emailAddress || '',
+        username: clerkUser.username || clerkUser.id,
+        firstName: clerkUser.firstName || 'Unknown',
+        lastName: clerkUser.lastName || 'User',
+        photo: clerkUser.imageUrl || '',
+      });
+    } catch (err: any) {
+      if (err.code === 11000) {
+        user = await User.findOne({ clerkId });
+      } else {
+        throw err;
+      }
+    }
+  }
+  return user;
+}
 
 export async function createUser(user: CreateUserParams) {
   try {
@@ -40,11 +68,12 @@ export async function updateUser(clerkId: string, user: UpdateUserParams) {
 
     console.log('Updating user with clerkId:', clerkId, 'data:', user)
 
-    const updatedUser = await User.findOneAndUpdate({ clerkId }, user, { new: true })
-
+    let updatedUser = await User.findOneAndUpdate({ clerkId }, user, { new: true });
     if (!updatedUser) {
-      console.log('No user found with clerkId:', clerkId)
-      throw new Error(`User not found with clerkId: ${clerkId}`)
+      // Try to create user and update again
+      await ensureMongoUser(clerkId);
+      updatedUser = await User.findOneAndUpdate({ clerkId }, user, { new: true });
+      if (!updatedUser) throw new Error(`User not found with clerkId: ${clerkId}`);
     }
     
     console.log('User updated successfully:', updatedUser._id)
@@ -60,8 +89,11 @@ export async function deleteUser(clerkId: string) {
     await connectToDatabase()
 
     // Find user to delete
-    const userToDelete = await User.findOne({ clerkId })
-
+    let userToDelete = await User.findOne({ clerkId });
+    if (!userToDelete) {
+      // Try to create user and delete again
+      userToDelete = await ensureMongoUser(clerkId);
+    }
     if (!userToDelete) {
       throw new Error('User not found')
     }
