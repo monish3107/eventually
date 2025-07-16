@@ -12,11 +12,12 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { CreateUserParams, UpdateUserParams } from '@/types'
 
 // Helper to ensure MongoDB user exists for a given Clerk userId
-async function ensureMongoUser(clerkId) {
+async function ensureMongoUser(clerkId: string) {
   let user = await User.findOne({ clerkId });
   if (!user) {
     // Fetch from Clerk
-    const clerkUser = await clerkClient.users.getUser(clerkId);
+    const client = await clerkClient();
+    const clerkUser = await client.users.getUser(clerkId);
     if (!clerkUser) throw new Error('Clerk user not found');
     try {
       user = await User.create({
