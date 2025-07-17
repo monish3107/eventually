@@ -4,10 +4,7 @@ import { getEventById, getRelatedEventsByCategory } from '@/lib/actions/event.ac
 import { formatDateTime } from '@/lib/utils';
 import Image from 'next/image';
 
-const EventDetails = async ({ params, searchParams }: {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}) => {
+const EventDetails = async ({ params, searchParams }: { params: { id: string }; searchParams: { [key: string]: string | string[] | undefined }; }) => {
   const { id } = params;
   const page = searchParams?.page;
 
