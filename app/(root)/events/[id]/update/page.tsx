@@ -10,8 +10,14 @@ type UpdateEventProps = {
     }
 }
 
-const UpdateEvent = async (props: UpdateEventProps) => {
-    const { id } = props.params;
+const UpdateEvent = async ({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}) => {
+    const { id } = params;
     
     const { userId } = await auth()
     console.log(userId)
