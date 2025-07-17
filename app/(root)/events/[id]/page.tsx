@@ -4,8 +4,9 @@ import { getEventById, getRelatedEventsByCategory } from '@/lib/actions/event.ac
 import { formatDateTime } from '@/lib/utils';
 import { SearchParamProps } from '@/types'
 import Image from 'next/image';
+import type { PageProps } from "next"; // Add this import at the top
 
-const EventDetails = async ({ params, searchParams }: SearchParamProps) => {
+const EventDetails = async ({ params, searchParams }: PageProps) => {
   const { id } = params;
   const page = searchParams?.page;
 
